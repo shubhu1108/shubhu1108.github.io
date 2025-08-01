@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shambhavi Shivpriya | Interactive Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Modern Teal, Vivid Purple & Soft Grays -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey. It starts with a high-impact summary and contact info, immediately followed by an interactive "Key Achievements Dashboard." This dashboard uses stat cards and a filterable chart to showcase quantifiable successes upfront, grabbing user attention. The flow then moves to a "Career Journey" timeline, where users can interactively expand each role to see details. This is followed by categorized skills and education. A new "Flagship Products & Innovations" section provides deep dives into key projects with AI-generated summaries, now nested within categories and expandable. Interaction: Clicking category headers expands/collapses the list of products. Clicking product links expands/collapses their descriptions. Descriptions are "AI-generated" (simulated) for conciseness and highlight numbers, with language adjusted to focus on project outcomes. Justification: Provides quick access to key project details and showcases product management/innovation skills, with improved information architecture for better usability.
+        - Report Info: Skills List. Goal: Inform. Viz/Method: Grouped lists in a grid layout (HTML/Tailwind). Interaction: Simple hover effects. Justification: A clean, scannable format is best for presenting a list of skills.
+        - Library/Method: Chart.js for canvas-based charting. Vanilla JS for all interactions.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F4F8; /* Light Blue-Gray */
+            color: #2C3E50; /* Dark Charcoal */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #1ABC9C; /* Primary Teal */
+            border-bottom-color: #1ABC9C; /* Primary Teal */
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ECF0F1; /* Light Gray */
+            border: 4px solid #1ABC9C; /* Primary Teal */
+            z-index: 1;
+        }
+        .timeline-line {
+            position: absolute;
+            left: -21px;
+            top: 5px;
+            bottom: -5px;
+            width: 2px;
+            background-color: #D5DBDB; /* Subtle Gray */
+        }
+        .card-expand {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out;
+        }
+        .card-expand.open {
+            max-height: 1000px;
+        }
+        .product-list-expand {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out;
+        }
+        .product-list-expand.open {
+            max-height: 1000px; /* Adjust as needed for content */
+        }
+        .skill-tag-product {
+            background-color: #EFE9F3; /* Light Purple */
+            color: #9B59B6; /* Vivid Purple */
+        }
+        .skill-tag-behavioral {
+            background-color: #FCEEF7; /* Lighter Pink/Purple */
+            color: #E066FF; /* More Vivid Purple */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-[#2C3E50]">Shambhavi Shivpriya</h1>
+                <p class="text-sm text-[#627D98]">Pricing & Strategy Professional</p>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#dashboard" class="nav-link font-medium pb-1">Dashboard</a>
+                <a href="#flagship-products" class="nav-link font-medium pb-1">Products</a>
+                <a href="#journey" class="nav-link font-medium pb-1">Journey</a>
+                <a href="#skills" class="nav-link font-medium pb-1">Skills</a>
+                <a href="#contact" class="nav-link font-medium pb-1">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-16">
+
+        <section id="intro" class="text-center mb-16 md:mb-24">
+            <h2 class="text-3xl md:text-5xl font-extrabold mb-4 text-[#2C3E50]">Driving Growth Through Data-Driven Strategy & Product Innovation</h2>
+            <p class="max-w-3xl mx-auto text-[#627D98] text-base md:text-lg">
+                Results-oriented professional with 3 years of experience leading strategic projects, program execution, and operational excellence in the logistics tech industry. Proven success in process optimization, stakeholder management, and go-to-market strategy, consistently improving efficiency, supply chain governance, and enabling data-driven decision-making in high-growth environments.
+            </p>
+        </section>
+
+        <section id="dashboard" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl md:text-3xl font-bold text-[#2C3E50]">Key Achievements Dashboard</h3>
+                <p class="text-[#627D98] mt-2 max-w-2xl mx-auto">This dashboard summarizes the key performance indicators impacted across various roles. Use the filters to explore achievements in different areas of impact.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB] text-center">
+                    <p class="text-3xl font-extrabold text-[#1ABC9C]">💲 <strong>12M+</strong></p>
+                    <p class="text-[#627D98] font-medium">Monthly Bookings Managed</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB] text-center">
+                    <p class="text-3xl font-extrabold text-[#1ABC9C]">📈 <strong>11.5M+</strong></p>
+                    <p class="text-[#627D98] font-medium">Annual Revenue Generated (CogoAssured)</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB] text-center">
+                    <p class="text-3xl font-extrabold text-[#1ABC9C]">📊 <strong>22%</strong></p>
+                    <p class="text-[#627D98] font-medium">Lead Conversion Uplift</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB] text-center">
+                    <p class="text-3xl font-extrabold text-[#1ABC9C]">💼 <strong>500M</strong></p>
+                    <p class="text-[#627D98] font-medium">UHNW Portfolio Strategy</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-[#D5DBDB]">
+                <h4 class="text-xl font-bold text-center mb-2 text-[#475569]">Performance Improvement Metrics</h4>
+                <div class="flex justify-center space-x-2 md:space-x-4 mb-6">
+                    <button id="btn-all" class="chart-filter-btn active bg-[#1ABC9C] text-white px-4 py-2 rounded-full text-sm font-medium">All Metrics</button>
+                    <button id="btn-revenue" class="chart-filter-btn bg-[#EBF0F5] text-[#475569] px-4 py-2 rounded-full text-sm font-medium">Revenue & Profit</button>
+                    <button id="btn-ops" class="chart-filter-btn bg-[#EBF0F5] text-[#475569] px-4 py-2 rounded-full text-sm font-medium">Operational Efficiency</button>
+                    <button id="btn-product" class="chart-filter-btn bg-[#EBF0F5] text-[#475569] px-4 py-2 rounded-full text-sm font-medium">Product & GTM</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="achievementsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="flagship-products" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl md:text-3xl font-bold text-[#2C3E50]">Flagship Products & Innovations</h3>
+                <p class="text-[#627D98] mt-2 max-w-2xl mx-auto">Explore key products and initiatives spearheaded or significantly contributed to, showcasing impact on product development and strategic execution. Click on a category to expand, then click on a product name to view its details.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Product Category -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <button class="category-toggle w-full text-left font-bold text-lg mb-4 text-[#475569] flex justify-between items-center">
+                        🚀 Product Development & Management 
+                        <span class="transform transition-transform">▼</span>
+                    </button>
+                    <div class="product-list-expand open space-y-4">
+                        <div id="product-cogoassured" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">CogoAssured <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                CogoAssured, Cogoport's flagship ocean logistics product for SMEs, saw its fulfillment rate increase to <strong>60%</strong> and contributed <strong>USD 11.5 million</strong> in annual revenue. This was achieved through enhanced shipment reliability and service transparency, pioneering inventory forecasting to achieve <strong>30% fulfillment</strong> during market volatility.
+                            </div>
+                        </div>
+                        <div id="product-negotiation-tool" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Enquiry Negotiation Tool <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                The 'Enquiry Negotiation' tool on the customer platform, enabling users to provide shipment preferences, was conceptualized and championed. This improved user experience and boosted the platform conversion rate by <strong>0.6%</strong>.
+                            </div>
+                        </div>
+                        <div id="product-central-hub" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Central Hub <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                'Central Hub', Cogoport's core fulfillment and profit optimization platform, was launched. By automating allocation logic, it reduced supplier TAT by <strong>25%</strong>, resulting in a <strong>0.8% increase in profitability</strong> per shipment.
+                            </div>
+                        </div>
+                        <div id="product-lsp-platform" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Global LSP Platform <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                The global LSP Platform, a high-impact supplier interface for rate uploads, RFQs, and contracts, was rolled out. This streamlined supplier onboarding, increased rate diversity by <strong>60%</strong> across key trade lanes, and improved supplier engagement.
+                            </div>
+                        </div>
+                        <div id="product-price-transformation-system" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Price Transformation System <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                Profit optimization efforts were led by implementing the 'Price Transformation System', enabling dynamic adjustments based on buyer behavior and shipment volume. This initiative successfully increased the average profit per SME order by <strong>0.3%</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategy & GTM Category -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <button class="category-toggle w-full text-left font-bold text-lg mb-4 text-[#475569] flex justify-between items-center">
+                        📈 Strategy & Go-to-Market 
+                        <span class="transform transition-transform">▼</span>
+                    </button>
+                    <div class="product-list-expand open space-y-4">
+                        <div id="product-brano-ai" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Brano.ai (B2B SaaS) <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                The GTM and ABM strategy for "Brano.ai", an AI-powered logistics freight intelligence platform, was developed and executed. This is expected to generate a <strong>USD 360K quarterly revenue pipeline</strong>, exceeding lead goals by <strong>23%</strong> and coming in <strong>8%</strong> under budget.
+                            </div>
+                        </div>
+                        <div id="product-enterprise-rfq-model" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Enterprise RFQ Model <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                The "Enterprise RFQ Model" was directed using dynamic pricing models, which standardized rate contracts across clients contributing <strong>40%</strong> of annual revenue. This ensured consistent pricing and improved revenue predictability.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics & Operations Category -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB] lg:col-span-2">
+                    <button class="category-toggle w-full text-left font-bold text-lg mb-4 text-[#475569] flex justify-between items-center">
+                        📊 Analytics & Operations Optimization 
+                        <span class="transform transition-transform">▼</span>
+                    </button>
+                    <div class="product-list-expand open space-y-4">
+                        <div id="product-revenue-desk" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Central Fulfillment Desk ("Revenue Desk") <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                The "Revenue Desk" managed <strong>USD 12M+</strong> in monthly bookings as the strategic control tower for supplier allocation across <strong>100+</strong> partners. This initiative delivered a <strong>0.8% improvement in margins</strong>, <strong>25% reduction in TAT</strong>, enhanced fulfillment reliability, and significantly improved customer satisfaction.
+                            </div>
+                        </div>
+                        <div id="product-pricing-control-panel" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Pricing Control Panel <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                The "Pricing Control Panel" was designed and implemented across <strong>7M+ SKUs</strong>. This innovation reduced price-setting TAT by <strong>5 hours</strong> and improved margin accuracy by <strong>11%</strong> through predictive logic and automation.
+                            </div>
+                        </div>
+                        <div id="product-control-tower" class="product-item bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] text-sm leading-relaxed cursor-pointer hover:bg-[#EBF0F5]">
+                            <h4 class="font-bold text-base mb-1 text-[#475569] flex justify-between items-center">Control Tower (within Central Hub) <span class="ml-1 transform transition-transform">▼</span></h4>
+                            <div class="product-description card-expand">
+                                A centralized "Control Tower" within Central Hub was designed and governed for managing post-booking workflows, invoice reconciliation, and exception handling. This system successfully recovered <strong>USD 240K/month</strong> in leakages and effectively monitored <strong>USD 11.5M+</strong> in monthly throughput.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="journey" class="scroll-mt-20 mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl md:text-3xl font-bold text-[#2C3E50]">Career Journey</h3>
+                <p class="text-[#627D98] mt-2 max-w-2xl mx-auto">An interactive overview of my professional history, highlighting key roles and significant contributions. Click on any role to see detailed accomplishments and responsibilities, focusing on the improvements driven.</p>
+            </div>
+            <div class="relative pl-8">
+                <div class="timeline-line"></div>
+                
+                <div class="mb-12 timeline-item">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-lg font-bold text-[#2C3E50]">Pricing, Product & Program Management</h4>
+                        <span class="ml-3 text-sm font-medium text-[#627D98]">Cogoport Pvt Ltd.</span>
+                    </div>
+                    <p class="text-sm text-[#9BB0C2] mb-3">Oct 2022 - Mar 2025</p>
+                    <button class="expand-btn text-[#1ABC9C] font-semibold text-sm flex items-center">Show Details 
+                        <span class="ml-1 transform transition-transform">▼</span>
+                    </button>
+                    <div class="card-expand mt-4">
+                        <div class="bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] space-y-2 text-sm">
+                            <p class="font-semibold text-[#475569] mb-2">In this role, efforts focused on optimizing revenue, streamlining operations, and launching impactful products. Key improvements include:</p>
+                            <p>● The "Central Fulfillment Desk" ("Revenue Desk") was led, managing <strong>USD 12M+</strong> in monthly bookings as a strategic control tower for supplier allocation across <strong>100+</strong> partners. This resulted in a <strong>0.8% improvement in margins</strong>, <strong>25% reduction in TAT</strong>, enhanced fulfillment reliability, and improved customer satisfaction.</p>
+                            <p>● Profitability was increased by <strong>10%</strong>, cancellations reduced by <strong>15%</strong>, and revenue leakage by <strong>5%</strong> through strategic invoice-level margin controls and automation logics.</p>
+                            <p>● The "Pricing Control Panel" was designed and implemented across <strong>7M+ SKUs</strong>, reducing price-setting TAT by <strong>5 hours</strong> and improving margin accuracy by <strong>11%</strong>.</p>
+                            <p>● The "Rate Management System" was scaled to support <strong>45K+ suppliers</strong> across <strong>7 countries</strong>, enabling real-time pricing visibility and automated uploads.</p>
+                            <p>● <strong>9 SQL-powered KPI dashboards</strong> were built for pricing and operations, leading to improved lead conversion by <strong>22%</strong>, reduced churn by <strong>15%</strong>, and cut operational TAT by <strong>75%</strong>.</p>
+                            <p>● The launch of 'CogoAssured', a flagship product, was spearheaded, generating over <strong>USD 11.5M</strong> in annual revenue and increasing fulfillment to <strong>60%</strong>; inventory forecasting was pioneered to achieve <strong>30% fulfillment</strong> during market volatility.</p>
+                            <p>● 'Central Hub', Cogoport's fulfillment and profit optimization platform, was launched, automating allocation logic and reducing supplier TAT by <strong>25%</strong>, resulting in a <strong>0.8% increase in profitability</strong>.</p>
+                            <p>● A centralized "Control Tower" within Central Hub was designed and implemented, managing post-booking workflows and invoice reconciliation; this recovered <strong>USD 240K/month</strong> in leakages and monitored <strong>USD 11.5M+</strong> monthly throughput.</p>
+                            <p>● GTM and ABM strategy for "Brano.ai (B2B SaaS)" was developed and executed, expecting <strong>USD 360K quarterly revenue pipeline</strong>, exceeding lead goals by <strong>23%</strong> and coming in under budget by <strong>8%</strong>.</p>
+                            <p>● Key friction points were identified, and the development of the 'Negotiation Tool' was championed, enabling shipment preference inputs; this improved user experience and boosted platform conversion rate by <strong>0.6%</strong>.</p>
+                            <p>● Recognition with the 'CogoBeliever' award and ESOPs was received for demonstrating exceptional ownership and delivering high-impact product outcomes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-12 timeline-item">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-lg font-bold text-[#2C3E50]">Business Expansion Lead - Malaysia</h4>
+                        <span class="ml-3 text-sm font-medium text-[#627D98]">Cogoport Pvt Ltd.</span>
+                    </div>
+                    <p class="text-sm text-[#9BB0C2] mb-3">Mar 2025 - Jul 2025</p>
+                    <button class="expand-btn text-[#1ABC9C] font-semibold text-sm flex items-center">Show Details 
+                        <span class="ml-1 transform transition-transform">▼</span>
+                    </button>
+                    <div class="card-expand mt-4">
+                        <div class="bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] space-y-2 text-sm">
+                            <p class="font-semibold text-[#475569] mb-2">In this role, responsibility for market entry and rapid growth in Malaysia was held. Key contributions to its success include:</p>
+                            <p>● The Malaysia market launch was spearheaded, establishing legal workflows, operational SOPs, and supplier partnerships during the global expansion phase.</p>
+                            <p>● Monthly revenue of <strong>USD 0.45M</strong> was generated in the first <strong>30 days</strong> by handling <strong>200+ containers</strong> and driving pricing optimization strategy.</p>
+                            <p>● Global operations were scaled to <strong>500+ monthly TEUs</strong> and <strong>USD 3.5M</strong> monthly revenue within the first <strong>30 days</strong> of Malaysia Office Launch.</p>
+                            <p>● Route profitability was improved by <strong>7%</strong> through strategic negotiations with local forwarders and shipping lines.</p>
+                            <p>● GTM execution was led, owning pricing frameworks, consultant onboarding, and cross-functional alignment as the single point of contact across commercial, legal, and operations teams.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="flex items-center mb-2">
+                        <h4 class="text-lg font-bold text-[#2C3E50]">Financial Analyst Intern</h4>
+                        <span class="ml-3 text-sm font-medium text-[#627D98]">London Capital, Dubai</span>
+                    </div>
+                    <p class="text-sm text-[#9BB0C2] mb-3">Jun 2022 - Sep 2022</p>
+                    <button class="expand-btn text-[#1ABC9C] font-semibold text-sm flex items-center">Show Details 
+                        <span class="ml-1 transform transition-transform">▼</span>
+                    </button>
+                    <div class="card-expand mt-4">
+                        <div class="bg-[#EBF0F5]/70 p-4 rounded-lg text-[#627D98] space-y-2 text-sm">
+                            <p class="font-semibold text-[#475569] mb-2">During this internship, significant financial strategies and operational efficiency were contributed to. Key improvements and contributions include:</p>
+                            <p>● A <strong>USD 500M</strong> portfolio strategy was led for a UHNW client, aligning asset mix with long-term goals.</p>
+                            <p>● Advice was provided on family office setup, governance, and investment structuring across GCC markets.</p>
+                            <p>● Budgeting and forecasting initiatives were executed, delivering projects under budget; macro and sectoral research was leveraged to guide capital allocation and portfolio re-balancing decisions.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="skills" class="scroll-mt-20 mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl md:text-3xl font-bold text-[#2C3E50]">Core Competencies</h3>
+                <p class="text-[#627D98] mt-2">A blend of technical, strategic, and behavioral skills that enable results.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <h4 class="font-bold text-lg mb-4 text-[#475569]">📊 Analytics & Finance</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Advanced Excel</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">SQL</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Power BI</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Tableau</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Revenue Analytics</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Pricing Strategy</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Forecasting</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">CLTV Modeling</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">KPI Dashboards</span>
+                        <span class="bg-[#E8F8F5] text-[#1ABC9C] text-sm font-medium px-3 py-1 rounded-full">Supply Chain Optimization</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <h4 class="font-bold text-lg mb-4 text-[#475569]">🚀 Product Management & Strategy</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">Product Strategy</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">GTM Strategy</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">Agile Project Mgmt</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">PRD Preparation</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">Jira & Confluence</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">Product Design</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">UI/UX</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">User Research</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">Process Automation</span>
+                        <span class="skill-tag-product text-sm font-medium px-3 py-1 rounded-full">Business Process Reengineering</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <h4 class="font-bold text-lg mb-4 text-[#475569]">🤝 Behavioral Strengths</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Strategic Thinking</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Leadership</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Team Collaboration</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Accountability Ownership</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Cross-Functional Comm.</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Problem Solving</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Adaptability</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Stakeholder Mgmt</span>
+                        <span class="skill-tag-behavioral text-sm font-medium px-3 py-1 rounded-full">Outcome-Driven Execution</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="education" class="mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl md:text-3xl font-bold text-[#2C3E50]">Education</h3>
+            </div>
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <p class="font-bold text-[#475569]">MBA, Global Finance</p>
+                    <p class="text-[#627D98] text-sm">SP Jain School of Global Management, Dubai, UAE</p>
+                    <p class="mt-2 text-sm text-[#1ABC9C] font-semibold">CGPA: 3.79 / 4.3</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-[#D5DBDB]">
+                    <p class="font-bold text-[#475569]">B.E, Computer Science</p>
+                    <p class="text-[#627D98] text-sm">MVJCE, Bengaluru, India</p>
+                    <p class="mt-2 text-sm text-[#1ABC9C] font-semibold">CGPA: 7.9 / 10</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer id="contact" class="bg-[#2C3E50] text-[#ECF0F1] scroll-mt-20">
+        <div class="container mx-auto px-6 py-12 text-center">
+            <h3 class="text-2xl font-bold text-white mb-4">Let's Connect</h3>
+            <p class="mb-6">I'm always open to discussing new opportunities and challenges.</p>
+            <div class="flex justify-center items-center space-x-6">
+                <a href="mailto:shambhaviworks11@gmail.com" class="hover:text-[#48C9B0] transition-colors">📧 shambhaviworks11@gmail.com</a>
+                <span>&bull;</span>
+                <a href="tel:+917759042414" class="hover:text-[#48C9B0] transition-colors">📞 +91 7759042414</a>
+                <span>&bull;</span>
+                <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" class="hover:text-[#48C9B0] transition-colors">🔗 LinkedIn</a>
+                <span>&bull;</span>
+                <a href="https://shubhu1108.github.io/" target="_blank" rel="noopener noreferrer" class="hover:text-[#48C9B0] transition-colors">📄 My Resume/Portfolio</a>
+            </div>
+            <p class="mt-8 text-sm text-[#9BB0C2]">&copy; 2025 Shambhavi Shivpriya. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const achievementsData = {
+                revenue: [
+                    { label: 'Margin Improvement (Central Fulfillment)', value: 0.8 },
+                    { label: 'Profitability Increase (Overall)', value: 10 },
+                    { label: 'Revenue Leakage Reduction (Overall)', value: 5 },
+                    { label: 'Route Profitability Improvement', value: 7 },
+                    { label: 'Profit per SME Order Increase', value: 0.3 },
+                    { label: 'Control Tower Leakage Recovery (K/month)', value: 240, unit: 'K' }
+                ],
+                ops: [
+                    { label: 'TAT Reduction (Central Fulfillment)', value: 25 },
+                    { label: 'TAT Reduction (Pricing Panel)', value: 5, unit: 'hours' },
+                    { label: 'Operational TAT Cut (Dashboards)', value: 75 },
+                    { label: 'Resolution Time Cut (Ticketing)', value: 80 },
+                    { label: 'Allocation TAT Reduction (Central Hub)', value: 25 },
+                    { label: 'Cancellations Reduction', value: 15 },
+                    { label: 'Churn Reduction', value: 15 }
+                ],
+                product: [
+                    { label: 'CogoAssured Fulfillment Increase', value: 60 },
+                    { label: 'Platform Conversion Rate Boost', value: 0.6 },
+                    { label: 'Margin Accuracy Improvement', value: 11 },
+                    { label: 'Rate Diversity Increase (LSP)', value: 60 },
+                    { label: 'Brano.ai Lead Goal Exceeded', value: 23 },
+                    { label: 'Brano.ai Under Budget', value: 8 }
+                ]
+            };
+
+            const ctx = document.getElementById('achievementsChart').getContext('2d');
+            let achievementsChart;
+
+            function createOrUpdateChart(data) {
+                if (achievementsChart) {
+                    achievementsChart.destroy(); // Destroy the existing chart instance
+                }
+
+                const labels = data.map(d => d.label);
+                const values = data.map(d => d.value);
+
+                achievementsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '% Impact',
+                            data: values,
+                            backgroundColor: 'rgba(26, 188, 156, 0.7)', /* Primary Teal with opacity */
+                            borderColor: 'rgba(26, 188, 156, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#D5DBDB' /* Subtle Gray */
+                                },
+                                ticks: {
+                                    color: '#627D98' /* Soft Gray */
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#627D98' /* Soft Gray */
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const item = data[context.dataIndex];
+                                        if (item.unit === 'hours') {
+                                            return `${context.dataset.label}: ${context.raw} hours`;
+                                        } else if (item.unit === 'K') {
+                                            return `${context.dataset.label}: ${context.raw}K`;
+                                        }
+                                        return `${context.dataset.label}: ${context.raw}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const filterButtons = document.querySelectorAll('.chart-filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-[#1ABC9C]', 'text-white');
+                        btn.classList.add('bg-[#EBF0F5]', 'text-[#475569]');
+                    });
+                    button.classList.add('active', 'bg-[#1ABC9C]', 'text-white');
+                    button.classList.remove('bg-[#EBF0F5]', 'text-[#475569]');
+
+                    const filter = button.id.split('-')[1];
+                    let dataToShow;
+                    if (filter === 'revenue') {
+                        dataToShow = achievementsData.revenue;
+                    } else if (filter === 'ops') {
+                        dataToShow = achievementsData.ops;
+                    } else if (filter === 'product') {
+                        dataToShow = achievementsData.product;
+                    }
+                    else {
+                        dataToShow = [...achievementsData.revenue, ...achievementsData.ops, ...achievementsData.product];
+                    }
+                    createOrUpdateChart(dataToShow);
+                });
+            });
+
+            document.getElementById('btn-all').click();
+
+            const expandButtons = document.querySelectorAll('.expand-btn');
+            expandButtons.forEach(button => {
+                const content = button.nextElementSibling;
+                const arrow = button.querySelector('span');
+                if (content && arrow) { /* Added null check */
+                    button.addEventListener('click', () => {
+                        content.classList.toggle('open');
+                        if (content.classList.contains('open')) {
+                            button.innerHTML = 'Hide Details <span class="ml-1 transform rotate-180 transition-transform">▼</span>';
+                        } else {
+                            button.innerHTML = 'Show Details <span class="ml-1 transform transition-transform">▼</span>';
+                        }
+                    });
+                }
+            });
+            
+            const categoryToggles = document.querySelectorAll('.category-toggle');
+            categoryToggles.forEach(button => {
+                const content = button.nextElementSibling;
+                const arrow = button.querySelector('span');
+                if (content && arrow) { /* Added null check */
+                    button.addEventListener('click', () => {
+                        content.classList.toggle('open');
+                        if (content.classList.contains('open')) {
+                            arrow.classList.add('rotate-180');
+                        } else {
+                            arrow.classList.remove('rotate-180');
+                        }
+                    });
+                }
+            });
+
+            const productItems = document.querySelectorAll('.product-item');
+            productItems.forEach(item => {
+                const title = item.querySelector('h4');
+                const description = item.querySelector('.product-description');
+                const arrow = title ? title.querySelector('span') : null; /* Added null check for title before querying span */
+
+                if (description && arrow && title) { /* Added null check */
+                    // Ensure description is initially closed
+                    description.classList.remove('open');
+
+                    title.addEventListener('click', (event) => {
+                        // Prevent default anchor behavior if it's a direct link to #id
+                        event.preventDefault(); 
+                        description.classList.toggle('open');
+                        if (description.classList.contains('open')) {
+                            arrow.classList.add('rotate-180');
+                        } else {
+                            arrow.classList.remove('rotate-180');
+                        }
+                    });
+                }
+            });
+
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 68) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
